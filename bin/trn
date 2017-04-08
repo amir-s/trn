@@ -1,0 +1,54 @@
+#!/usr/bin/env node
+const request = require('request');
+const EventEmitter = require('events');
+const progress = require('progress');
+const fs = require('fs');
+const qrcode = require('qrcode-terminal');
+const path = require('path');
+require('colors');
+
+
+if (process.argv[2] === undefined) {
+	console.error("Usage: trn path/to/your/file.ext");
+	process.exit(1);
+}
+
+let upload = fileName => {
+	let emitter = new EventEmitter();
+	let total = fs.statSync(fileName).size;
+	let bytes = 0;
+	request.post({
+		url:'https://transfer.sh/',
+		formData: {
+			file: fs.createReadStream(fileName).on('data', (chunk) => {
+				bytes += chunk.length;
+				emitter.emit('progress', chunk.length, bytes, total, 100*bytes/total);
+			}),
+		}
+	}, (err, httpResponse, body) => {
+		if (err) return emitter.emmit('error', err);
+		emitter.emit('done', body);
+	});
+	process.nextTick(()=> emitter.emit('begin', total));
+	return emitter;
+}
+
+var bar = null
+
+upload(path.resolve(process.argv[2]))
+	.on('begin', total => {
+		bar = new progress('  uploading'.gray + ' ['.gray.bold + ':bar ' + ']'.gray.bold + ' :percent '.bold + ':etas'.green, {
+			complete: '='.blue,
+			incomplete: ' ',
+			width: 1000,
+			total: total
+		});
+	})
+	.on('progress', newChunks => {
+		 bar.tick(newChunks);
+	})
+	.on('done', url => {
+		console.log();
+		qrcode.generate(url);
+		console.log(url)
+	});

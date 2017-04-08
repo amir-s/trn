@@ -1,0 +1,30 @@
+{
+  "name": "trn",
+  "version": "0.0.1",
+  "description": "transfer.sh js cli tool",
+  "main": "bin/trn",
+  "bin": {
+    "trn": "./bin/trn"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/amir-s/trn.git"
+  },
+  "keywords": [
+    "transfer",
+    "upload",
+    "cli"
+  ],
+  "author": "Amir Saboury",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/amir-s/trn/issues"
+  },
+  "homepage": "https://github.com/amir-s/trn#readme",
+  "dependencies": {
+    "colors": "^1.1.2",
+    "progress": "^1.1.8",
+    "qrcode-terminal": "^0.11.0",
+    "request": "^2.81.0"
+  }
+}
